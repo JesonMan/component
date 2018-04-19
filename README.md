@@ -6,6 +6,6 @@
 
 3、进度 https://jesonman.github.io/component/progress.html
 
-4、拖拉滚动条 https://jesonman.github.io/component/scroll.html
+4、双杆滑动条 https://jesonman.github.io/component/scroll.html
 
 5、时钟 https://jesonman.github.io/component/clock.html
