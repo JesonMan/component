@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>健康度组件</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		#myCanvas{
+			display: block;
+			margin: 0 auto;
+		}
+	</style>
+</head>
+<body>
+<canvas id="myCanvas" width="240" height="240"></canvas>
+<script type="text/javascript">
+	function drawHealth(stopValue, selector){
+		var colors = {
+			fine: {
+				top: '#5ee895',
+				bottom: '#34c493',
+				rgba: 'rgba(52, 196, 147, 0.8)'
+			},
+			moderat: {
+				top: '#b3bcff',
+				bottom: '#04bce4',
+				rgba: 'rgba(4, 188, 228, 0.8)'
+			},
+			warn: {
+				top: '#ff905e',
+				bottom: '#ff2741',
+				rgba: 'rgba(225, 39, 65, 0.8)'
+			}
+		}
+
+		var myCanvas = document.getElementById(selector);
+		var c = myCanvas.getContext('2d');
+		var healthValue;
+		var topColor = colors.warn.top;
+		var bottomColor = colors.warn.bottom;
+		var rgba = colors.warn.rgba;
+		_init();
+
+		function _init(){
+			healthValue = 0;
+			_start();
+			_animate();
+		}
+
+		function _start(){
+			c.save();
+			c.translate(120, 120);
+			_clearAll();
+			_drawBigCycle();
+			_drawWhiteCycle();
+			_drawWhiteLine();
+			_drawHealthValue();
+			_drawHealthText();
+			_drawOuterCycle();
+			_drawOuterSmallCycle();
+			_drawInnerSmallCycle();
+			_drawPointCycle();
+			c.restore();
+		}
+
+		function _animate(){
+			if(stopValue > healthValue){
+				healthValue++;
+				if(healthValue <= stopValue){
+					if(healthValue < 40){
+						topColor = colors.warn.top;
+						bottomColor = colors.warn.bottom;
+						rgba = colors.warn.rgba;
+					}else if(healthValue < 80){
+						topColor = colors.moderat.top;
+						bottomColor = colors.moderat.bottom;
+						rgba = colors.moderat.rgba;
+					}else{
+						topColor = colors.fine.top;
+						bottomColor = colors.fine.bottom;
+						rgba = colors.fine.rgba;
+					}
+					_start();
+					requestAnimationFrame(_animate);
+				}else{
+					cancelAnimationFrame(_animate);
+				}
+			}else if(stopValue < healthValue){
+				healthValue--;
+				if(healthValue >= stopValue){
+					if(healthValue < 40){
+						topColor = colors.warn.top;
+						bottomColor = colors.warn.bottom;
+						rgba = colors.warn.rgba;
+					}else if(healthValue < 80){
+						topColor = colors.moderat.top;
+						bottomColor = colors.moderat.bottom;
+						rgba = colors.moderat.rgba;
+					}else{
+						topColor = colors.fine.top;
+						bottomColor = colors.fine.bottom;
+						rgba = colors.fine.rgba;
+					}
+					_start();
+					requestAnimationFrame(_animate);
+				}else{
+					cancelAnimationFrame(_animate);
+				}
+			}else{
+				return;
+			}
+		}
+
+		function _clearAll(){
+			c.clearRect(-120, -120, 240, 240);
+		}
+
+		function _drawBigCycle(){
+			c.save();
+			c.beginPath();
+			c.shadowOffsetX = 0;
+			c.shadowOffsetY = 0;
+			c.shadowBlur = 15;
+			c.shadowColor = rgba;
+			var linear = c.createLinearGradient(0, -100, 0, 100);
+			linear.addColorStop(0, topColor);
+			linear.addColorStop(1, bottomColor);
+			c.fillStyle = linear;
+			c.arc(0, 0, 100, 0, 2*Math.PI);
+			c.fill();
+			c.closePath();
+			c.restore();
+		}
+
+		function _drawWhiteCycle(){
+			c.save();
+			c.beginPath();
+			c.fillStyle = "#fff";
+			c.arc(0, 0, 75, 0, 2*Math.PI);
+			c.fill();
+			c.closePath();
+			c.restore();
+		}
+
+		function _drawWhiteLine(){
+			c.save();
+			c.rotate(Math.PI/4);
+			for(var i = 0; i < 37; i++){
+				if(i == 6 || i == 18 || i == 30){
+					c.rotate(-Math.PI/24);
+					continue;
+				}
+				c.beginPath();
+				c.strokeStyle = "#fff";
+				c.lineWidth = 1;
+				c.moveTo(82, 0);
+				c.lineTo(93, 0);
+				c.stroke();
+				c.closePath();
+				c.rotate(-Math.PI/24);
+			}
+			c.rotate(Math.PI/4 + Math.PI/24);
+			for(var i = 0; i < 5; i++){
+				if(i == 1 || i == 3){
+					c.rotate(Math.PI/4);
+					continue;
+				}
+				c.beginPath();
+				c.moveTo(79, 0);
+				c.lineTo(96, 0);
+				c.stroke();
+				c.closePath();
+				c.rotate(Math.PI/4);
+			}
+			c.restore();
+		}
+
+		function _drawHealthValue(){
+			c.save();
+			c.font = "bold 80px Arial";
+			var linear = c.createLinearGradient(0, -50, 0, 50);
+			linear.addColorStop(0, topColor);
+			linear.addColorStop(1, bottomColor);
+			c.fillStyle = linear;
+			c.textAlign = "center";
+			c.fillText(healthValue, 0, 18);
+			c.restore();
+		}
+
+		function _drawHealthText(){
+			c.save();
+			c.font = "16px 雅黑";
+			c.fillStyle = "#2b2933";
+			c.textAlign = "center";
+			c.fillText("健康度", 0, 45);
+			c.restore();
+		}
+
+		function _drawOuterCycle(){
+			c.save();
+			c.rotate(3*Math.PI/4);
+			c.beginPath();
+			c.strokeStyle = bottomColor;
+			c.arc(0, 0, 110, 0, healthValue/100*1.5*Math.PI);
+			c.stroke();
+			c.closePath();
+			c.restore();
+		}
+
+		function _drawOuterSmallCycle(){
+			c.save();
+			c.rotate(3*Math.PI/4 + healthValue/100*1.5*Math.PI);
+			c.beginPath();
+			c.fillStyle = bottomColor;
+			c.arc(110, 0, 5, 0, 2*Math.PI);
+			c.fill();
+			c.closePath();
+			c.restore();
+		}
+
+		function _drawInnerSmallCycle(){
+			c.save();
+			c.rotate(3*Math.PI/4 + healthValue/100*1.5*Math.PI);
+			c.beginPath();
+			c.fillStyle = "#fff";
+			c.arc(110, 0, 3.5, 0, 2*Math.PI);
+			c.fill();
+			c.closePath();
+			c.restore();
+		}
+
+		function _drawPointCycle(){
+			c.save();
+			c.rotate(3*Math.PI/4 + healthValue/100*1.5*Math.PI);
+			c.beginPath();
+			c.fillStyle = bottomColor;
+			c.arc(110, 0, 1.5, 0, 2*Math.PI);
+			c.fill();
+			c.closePath();
+			c.restore();
+		}
+
+		return {
+			setValue: function(value){ stopValue = value; _animate()}
+		}
+	}
+
+	var healthy = drawHealth(100, "myCanvas");
+	setInterval(function(){
+		healthy.setValue(parseInt(Math.random()*101));
+	},3000);
+</script>
+</body>
+</html>

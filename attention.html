@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>attention</title>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="jquery-1.11.3.min.js"></script>
+	<style type="text/css">
+		.ctn{
+			background: #fff;
+			border: 1px solid red;
+			width: 680px;
+			height: 380px;
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			margin: auto;
+		}
+		.ctn div{
+			position: absolute;
+			width: 200px;
+			height: 100px;
+			background: #ddd;
+			cursor: pointer;
+			line-height: 100px;
+			text-align: center;
+			font-size: 40px;
+		}
+		.ctn div.active{
+			background: red;
+			color: #fff;
+		}
+	</style>
+<body>
+	<section id="ctn" class="ctn">
+	</section>
+	<script type="text/javascript">
+		var data = [
+			{id: 'div1', top: '20px', left: '20px', active: true},
+			{id: 'div2', top: '20px', left: '240px', active: true},
+			{id: 'div332', top: '20px', left: '460px', active: true},
+			{id: 'div4', top: '140px', left: '20px', active: true},
+			{id: 'div5', top: '140px', left: '240px', active: true},
+			{id: 'div6321', top: '140px', left: '460px', active: false},
+			{id: 'div7', top: '260px', left: '20px', active: false},
+			{id: 'div8', top: '260px', left: '240px', active: false},
+			{id: 'div9', top: '260px', left: '460px', active: false}
+		]
+
+		showDOM(data, 'ctn');
+
+		//生成DOM并添加事件
+		function showDOM(data, ctnSelecterId) {//传数据data和容器选择器id ctnSelecterId
+			//根据数据生成元素
+			var fragment = '';
+			data.forEach(function(item, i){
+				fragment += '<div id="'+ item.id +'" class="'+ (item.active ? 'active' : '') +'" style="top: '+ item.top +'; left: '+ item.left +'" index="'+ i +'">'+ (i + 1) +'</div>';
+				i % 3 == 0 ? (item.isfirst = true) : (item.isfirst = false); 
+			});
+			$('#' + ctnSelecterId).html(fragment);
+
+			//元素点击时移除或添加active
+			$('#' + ctnSelecterId).on('click', 'div', function(){
+				var id = $(this).attr('id');
+				var isActive = $(this).hasClass('active');
+				var index = Number($(this).attr('index'));
+
+				if(isActive){
+					removeActive(index);
+				}else{
+					addActive(index);
+				}
+			});
+		}
+
+		//移除active
+		function removeActive(index){
+			var sourceObj = data[index];
+
+			var lastActiveIndex;
+			for(var i = data.length - 1; i >= 0; i--){
+				if(data[i].active){
+					lastActiveIndex = i;
+					break;
+				}
+			}
+
+			//最后一个active的刚好是自己
+			if(lastActiveIndex == index){
+				$('#' + sourceObj.id).removeClass('active');
+				sourceObj.active = false;
+				return;
+			}
+
+			var targetObj = data[lastActiveIndex];
+			sourceObj.top = targetObj.top;
+			sourceObj.left = targetObj.left;
+			sourceObj.active = false;
+
+			var oldflag = sourceObj.isfirst;
+			sourceObj.isfirst = targetObj.isfirst;
+
+			$('#' + sourceObj.id).attr('index', lastActiveIndex).removeClass('active').animate({top: sourceObj.top, left: sourceObj.left}, 500);
+			
+			var flag = false;
+			for(var i = index + 1; i <= lastActiveIndex; i++) {
+				data[i - 1] = data[i];
+				if(!data[i].isfirst) {
+					data[i].left = parseInt(data[i].left) - 220 + 'px';
+					if(flag) {
+						data[i].isfirst = true;
+						flag = false;
+					}
+				} else {
+					data[i].left = parseInt(data[i].left) + 440 + 'px';
+					data[i].top = parseInt(data[i].top) - 120 + 'px';
+					data[i].isfirst = false;
+					flag = true;
+				}
+				$('#' + data[i].id).attr('index', i - 1).animate({top: data[i].top, left: data[i].left}, 500);
+			}
+				
+			data[index].isfirst = oldflag;
+
+			data[lastActiveIndex] = sourceObj;
+		}
+
+		//添加active
+		function addActive(index){
+			var sourceObj = data[index];
+
+			var firstUnactiveIndex;
+			for(var i in data){
+				if(!data[i].active){
+					firstUnactiveIndex = i;
+					break;
+				}
+			}
+
+			//第一个非active刚好就是自己
+			if(firstUnactiveIndex == index){
+				$('#' + sourceObj.id).addClass('active');
+				sourceObj.active = true;
+				return;
+			}
+
+			var targetObj = data[firstUnactiveIndex];
+			sourceObj.top = targetObj.top;
+			sourceObj.left = targetObj.left;
+			sourceObj.isfirst = targetObj.isfirst;
+			sourceObj.active = true;			
+
+			$('#' + sourceObj.id).attr('index', firstUnactiveIndex).addClass('active').animate({top: sourceObj.top, left: sourceObj.left}, 500);
+
+			for(var i = index - 1; i >= firstUnactiveIndex; i--) {
+
+				if(data[i - 2] && data[i - 2].isfirst) {
+					data[i].left = parseInt(data[i].left) - 440 + 'px';
+					data[i].top = parseInt(data[i].top) + 120 + 'px';
+					data[i].isfirst = true;
+				} else {
+					data[i].left = parseInt(data[i].left) + 220 + 'px';
+					data[i].isfirst = false;
+				}
+
+				data[i + 1] = data[i];
+
+				$('#' + data[i].id).attr('index', i + 1).animate({top: data[i].top, left: data[i].left}, 500);
+			}
+
+			data[firstUnactiveIndex] = sourceObj;
+		}
+	</script>
+</body>
+</html>

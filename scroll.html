@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>双杆滑动条</title>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="jquery-1.11.3.min.js"></script>
+	<style type="text/css">
+		.pro-min, .pro-max{
+			position: absolute;
+			height: 2px;
+			left: 0;
+			top: 0;
+		}
+		.pro-min{
+			background: #ccc;
+			z-index: 2;
+			width: 31%;
+		}
+		.pro-max{
+			background: #5b62f9;
+			z-index: 1;
+			width: 76%;
+		}
+		.pro-min>span, .pro-max>span{
+			position: absolute;
+			width: 44px;
+			height: 25px;
+			border-radius: 2px;
+			background: #5b62f9;
+			right: -18px;
+			top: -34px;
+			text-align: center;
+			line-height: 25px;
+			color: #fff;
+		}
+		.pro-min>span:after, .pro-max>span:after{
+			content: "";
+			position: absolute;
+			width: 0;
+			height: 0;
+			border: 5px solid transparent;
+			border-top: 5px solid #5b62f9;
+			bottom: -10px;
+			left: 17px;
+		}
+		.left-point, .right-point{
+			position: absolute;
+			width: 6px;
+			height: 6px;
+			border-radius: 50%;
+			right: 0;
+			top: -3px;
+			background: #fff;
+			border: 1px solid #ccc;
+			cursor: pointer;
+		}
+		.right-point{
+			background: #5b62f9;
+		}
+	</style>
+</head>
+<body>
+	<div id="ceshi" style="margin: 0 auto; margin-top: 100px"></div>
+	<script type="text/javascript">
+		(function(){
+			$.fn.double = function(width, value, min, max, fn){
+				var $self = $(this);
+				$self.css({
+					position: 'relative',
+					width: width,
+					height: '2px',
+					background: '#ccc'
+				});
+				$self.html(
+					'<span class="pro-min">\
+						<span>31</span>\
+						<i class="left-point"></i>\
+					</span>\
+					<span class="pro-max">\
+						<span>76</span>\
+						<i class="right-point"></i>\
+					</span>'
+				);
+				var lineWidth = width;//线的长度
+				var lineValue = value;//线总长对应的值
+				var isMoveL = false;//左边点是否可以移动
+				var isMoveR = false;//右边点是否可以移动
+				var startPointL;//鼠标的开始位置
+				var startPointR;
+				var endPoint;//鼠标的结束位置
+
+				$self.find('.pro-min span').text(min);
+				$self.find('.pro-max span').text(max);
+				$self.find('.pro-min').width(min/value*100 + '%');
+				$self.find('.pro-max').width(max/value*100 + '%');
+
+				var leftWidth = $self.find('.pro-min').width();
+				var leftValue = min;
+				var rightWidth = $self.find('.pro-max').width();
+				var rightValue = max;
+
+				$self.find('.left-point').on('mousedown', function(e){
+					isMoveL = true;
+					startPointL = $('.left-point', $self).offset().left;
+					leftWidth = $self.find('.pro-min').width();
+				});
+
+				$self.find('.right-point').on('mousedown', function(e){
+					isMoveR = true;
+					startPointR = $('.right-point', $self).offset().left;
+					rightWidth = $self.find('.pro-max').width();
+				});
+
+				$(document).on('mousemove', function(e){
+					if(!isMoveL && ! isMoveR){
+						return;
+					}
+					$(document.body).css('cursor', 'pointer');
+					var e = e || window.event;
+					e.preventDefault();
+					if(isMoveL){
+						$self.find('.pro-max').css('z-index', '1');
+						var width = leftWidth + e.pageX - startPointL;
+						if(width <= 0){
+							$self.find('.pro-min').width(0);
+						}else if(width >= rightWidth){
+							$self.find('.pro-min').width(rightWidth);
+						}else{
+							$self.find('.pro-min').width(width);
+						}
+						$self.find('.pro-min span').text(parseInt($self.find('.pro-min').width()/lineWidth*lineValue));//最小值数字
+					}
+					if(isMoveR){
+						var width = rightWidth + e.pageX -startPointR;
+						if(width <= leftWidth){
+							$self.find('.pro-max').width(leftWidth);
+						}else if(width >= lineWidth){
+							$self.find('.pro-max').width(lineWidth);
+						}else{
+							$self.find('.pro-max').width(width);
+						}
+						$self.find('.pro-max span').text(parseInt($self.find('.pro-max').width()/lineWidth*lineValue));//最大值数字
+					}
+				});
+
+				$(document).on('mouseup', function(e){
+					if(isMoveR || isMoveL){
+						fn && fn($self.find('.pro-min span span').text(), $self.find('.pro-max span span').text());
+					}
+					isMoveL = false;
+					isMoveR = false;
+					$(document.body).css('cursor', 'default');
+					leftWidth = $self.find('.pro-min').width();
+					rightWidth = $self.find('.pro-max').width();
+					if(leftWidth == 0){
+						$self.find('.pro-max').css('z-index', '3');
+					}
+				});
+			}
+		})()
+
+		$('#ceshi').double(250, 100, 0, 100);
+	</script>
+</body>
+</html>

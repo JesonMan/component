@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>进度</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		body{
+			font-family: "microsoft yahei";
+		}
+		.progress{
+			width: 600px;
+			height: 20px;
+			background-image: linear-gradient(to right, #aeadb3 0%, #aeadb3 100%);
+			background-size: 100% 4px;
+			background-position: 0 14px;
+			background-repeat: no-repeat;
+			margin: 20px 0 0 0;
+			list-style: none;
+			padding: 0;
+		}
+		.progress li{
+			float: left;
+			width: calc(100%/5);
+			background-image: linear-gradient(to right, #5b62f9 0%, #5b62f9 100%);
+			background-size: 0 4px;
+			background-position: left 14px;
+			background-repeat: no-repeat;
+			position: relative;
+			color: #adadb4;
+			text-align: center;
+			padding-top: 58px;
+			font-size: 12px;
+		}
+		.progress li.done:nth-child(1){
+			animation: progress_done linear 1s forwards;
+		}
+		.progress li.doing:nth-child(1){
+			animation: progress_doing linear 0.5s forwards;
+		}
+		.progress li.done:nth-child(2){
+			animation: progress_done linear 1s 1s forwards;
+		}
+		.progress li.doing:nth-child(2){
+			animation: progress_doing linear 0.5s 1s forwards;
+		}
+		.progress li.done:nth-child(3){
+			animation: progress_done linear 1s 2s forwards;
+		}
+		.progress li.doing:nth-child(3){
+			animation: progress_doing linear 0.5s 2s forwards;
+		}
+		.progress li.done:nth-child(4){
+			animation: progress_done linear 1s 3s forwards;
+		}
+		.progress li.doing:nth-child(4 ){
+			animation: progress_doing linear 0.5s 3s forwards;
+		}
+		.progress li.done:nth-child(5){
+			animation: progress_done linear 1s 4s forwards;
+		}
+		.progress li.doing:nth-child(5){
+			animation: progress_doing linear 0.5s 4s forwards;
+		}
+		.progress li:before{
+			content: "";
+			border: 2px solid #aeadb3;
+			width: 14px;
+			height: 14px;
+			border-radius: 50%;
+			position: absolute;
+			background-color: #f7f7fa;
+			left: 0;
+			right: 0;
+			top: 7px;
+			margin: auto;
+			box-shadow: 0 0 0 3px #f7f7fa;
+		}
+		.progress li.done:nth-child(1):before{
+			animation: progress_circle_done linear 1s forwards;
+		}
+		.progress li.doing:nth-child(1):before{
+			animation: progress_circle_doing linear 1s forwards;
+		}
+		.progress li.done:nth-child(2):before{
+			animation: progress_circle_done linear 1s 1s forwards;
+		}
+		.progress li.doing:nth-child(2):before{
+			animation: progress_circle_doing linear 1s 1s forwards;
+		}
+		.progress li.done:nth-child(3):before{
+			animation: progress_circle_done linear 1s 2s forwards;
+		}
+		.progress li.doing:nth-child(3):before{
+			animation: progress_circle_doing linear 1s 2s forwards;
+		}
+		.progress li.done:nth-child(4):before{
+			animation: progress_circle_done linear 1s 3s forwards;
+		}
+		.progress li.doing:nth-child(4):before{
+			animation: progress_circle_doing linear 1s 3s forwards;
+		}
+		.progress li.done:nth-child(5):before{
+			animation: progress_circle_done linear 1s 4s forwards;
+		}
+		.progress li.doing:nth-child(5):before{
+			animation: progress_circle_doing linear 1s 4s forwards;
+		}
+		.progress li:nth-child(1):after{
+			content: "已生产";
+		}
+		.progress li:nth-child(2):after{
+			content: "待分配";
+		}
+		.progress li:nth-child(3):after{
+			content: "已分派";
+		}
+		.progress li:nth-child(4):after{
+			content: "处理中";
+		}
+		.progress li:nth-child(5):after{
+			content: "已取消";
+		}
+		.progress li:after{
+			position: absolute;
+			left: 0;
+			right: 0;
+			margin: auto;
+			top: 36px;
+		}
+		@keyframes progress_circle_done{
+			0%{
+				border-color: #aeadb3;
+			}
+			40%{
+				border-color: #aeadb3;
+			}
+			60%{
+				border-color: #5b62f9;
+			}
+			100%{
+				border-color: #5b62f9;
+			}
+		}
+		@keyframes progress_circle_doing{
+			0%{border: 2px solid #aeadb3;}
+			60%{border: 2px solid #aeadb3;}
+			80%{border: 4px solid #aeadb3;}
+			100%{
+				border: 2px solid #f7f7fa;
+				background: #5b62f9;
+				box-shadow: 0 0 0 2px #5b62f9, 0 0 0 4px #f7f7fa;
+			}
+		}
+		@keyframes progress_done{
+			60%{color: #2b2933;}
+			100%{background-size: 100% 4px; color: #2b2933;}
+		}
+		@keyframes progress_doing{
+			100%{background-size: 50% 4px; color: #5b62f9; font-weight: bold;}
+		}
+	</style>
+</head>
+<body>
+	<ul class="progress">
+		<li class="done">2017-01-04<br>00:00:00</li>
+		<li class="done">2017-01-04<br>00:00:00</li>
+		<li class="done">2017-01-04<br>00:00:00</li>
+		<li class="doing">2017-01-04<br>00:00:00</li>
+		<li></li>
+	</ul>
+</body>
+</html>
