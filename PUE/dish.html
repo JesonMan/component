@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		body, html {background: #06102a;}
+		canvas {
+			display: block;
+			margin: auto;
+			margin-top: 140px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="cv" width="240" height="202"></canvas>
+	<script type="text/javascript">
+		function showDish(cv, value1, value2) {			
+			var ctx = cv.getContext('2d');
+			var deg = Math.PI / 180;
+			var duration = 1000; // 动画用时1s
+			var curProgress = 0; // 当前动画进度
+			var startTime;
+			var timer = null;
+
+			var curPercent = 0;
+			var startPercent = 0;
+			var endPercent;
+			var diffPercent;
+
+			var img = new Image();
+			img.src = './dish.png';
+			img.onload = function () {
+				_init();
+			}
+
+			function _init() {
+				_clear();
+				_drawBg();
+				_drawProgressDishBg();
+				_drawProgressDish();
+				_drawSector();
+				_drawNum();
+				_drawValue1();
+				_drawName();
+				_drawValue2();
+				_run();
+			}
+
+			function _run() {
+				// 0表示刚开始
+				if (curProgress === 0) {
+					startPercent = curPercent;
+					endPercent = (value1 - 1)/ 2;
+					diffPercent = endPercent - startPercent;
+					startTime = new Date().getTime();
+				}
+
+				if (curProgress < 1) {
+					timer = requestAnimationFrame(function() {
+						curProgress = (new Date().getTime() - startTime) / duration;
+						curProgress > 1 && (curProgress = 1);
+						curPercent = startPercent + curProgress * diffPercent;
+						_init();
+					});
+				} else {
+					curProgress = 0;
+					cancelAnimationFrame(timer);
+					timer = null;
+				}
+			}
+
+			function _drawName() {
+				ctx.save();
+				ctx.translate(120, 101);
+				ctx.textAlign = 'center';
+				ctx.font = '14px MicrosoftYaHei';
+				ctx.fillStyle = 'rgb(249, 249, 244)';	
+				ctx.fillText('PUE数值', 0, 26);
+				ctx.restore();
+			}
+
+			function _drawValue1() {
+				ctx.save();
+				ctx.translate(120, 101);
+				ctx.textAlign = 'center';
+				ctx.font = 'bold 40px Arial';
+				ctx.fillStyle = '#fff';	
+				ctx.fillText((curPercent * 2 + 1).toFixed(2), 0, 0);
+				ctx.restore();
+			}
+
+			function _drawValue2() {
+				ctx.save();
+				ctx.translate(120, 101);
+				ctx.textAlign = 'center';
+				ctx.font = '19px MicrosoftYaHei';
+				ctx.fillStyle = '#fff';	
+				ctx.fillText('总耗电量 : ' + value2 + '万KWH', 0, 84);
+				ctx.restore();
+			}
+
+			// 画扇形
+			function _drawSector() {
+				ctx.save();
+				var grd=ctx.createLinearGradient(90, 0, 240, 0);
+				grd.addColorStop(0, 'rgba(66, 124, 222, 0.1)');
+				grd.addColorStop(1, 'rgba(66, 124, 222, 0.9)');
+				ctx.fillStyle = grd;
+				ctx.beginPath();
+				ctx.arc(120, 101, 70, 152 * deg, (155 + (curPercent * 230)) * deg);
+				ctx.lineTo(120, 101);
+				ctx.fill();
+				ctx.closePath();
+				ctx.restore();
+			}
+
+			function _drawNum() {
+				ctx.save();
+				ctx.font='12px Arial';
+				ctx.fillStyle = '#8dbcf5';
+				ctx.fillText('1', 58, 138);
+				ctx.fillText('1.5', 59, 72);
+				ctx.fillText('1.8', 85, 46);
+				ctx.fillText('2', 116, 40);
+				ctx.fillText('2.5', 162, 72);
+				ctx.fillText('3', 174, 138);
+				ctx.restore();
+			}
+
+			function _drawProgressDishBg() {
+				ctx.save();
+				ctx.setLineDash([2.12, 2]);
+				ctx.strokeStyle = 'rgb(88, 131, 177)';
+				ctx.lineWidth = 10;
+				ctx.beginPath();
+				ctx.arc(120, 101, 84, 155 * deg, (155 + (100 / 100 * 230)) * deg);
+				ctx.stroke();
+				ctx.closePath();
+				ctx.restore();
+			}
+
+			function _drawProgressDish() {
+				ctx.save();
+				ctx.setLineDash([2.12, 2]);
+
+				// 渐变色进度条由两条弧形环合成，一条1/4，一条3/4
+				if (curPercent <= 0.25) {
+					var grd=ctx.createLinearGradient(0, 130, 0, 0);
+					grd.addColorStop(0, 'rgba(107, 219, 251, 1)');
+					grd.addColorStop(1, 'rgba(238, 138, 55, 1)');
+					ctx.strokeStyle = grd;
+					ctx.lineWidth = 10;
+					ctx.beginPath();
+					ctx.arc(120, 101, 84, 155 * deg, (155 + (curPercent * 230)) * deg);
+					ctx.stroke();
+					ctx.closePath();
+				} else {
+					var grd1=ctx.createLinearGradient(0, 130, 0, 0);
+					grd1.addColorStop(0, 'rgba(107, 219, 251, 1)');
+					grd1.addColorStop(1, 'rgba(238, 138, 55, 1)');
+					ctx.strokeStyle = grd1;
+					ctx.lineWidth = 10;
+					ctx.beginPath();
+					ctx.arc(120, 101, 84, 155 * deg, (155 + (0.25 * 230)) * deg);
+					ctx.stroke();
+					ctx.closePath();
+
+					var grd2=ctx.createLinearGradient(21, 0, 240, 0);
+					grd2.addColorStop(0, 'rgba(107, 219, 251, 1)');
+					grd2.addColorStop(0.2, 'rgba(238, 138, 55, 1)');
+					grd2.addColorStop(0.35, 'rgba(198, 69, 99, 1)');
+					grd2.addColorStop(1, 'rgba(198, 69, 99, 1)');
+					ctx.strokeStyle = grd2;
+					ctx.lineWidth = 10;
+					ctx.beginPath();
+					ctx.arc(120, 101, 84, (154 + (0.25 * 230)) * deg, (155 + (curPercent * 230)) * deg);
+					ctx.stroke();
+					ctx.closePath();
+				}
+
+				ctx.restore();
+			}
+
+			// 画背景图
+			function _drawBg() {
+				ctx.save();				
+				ctx.drawImage(img, 0, 0);
+				ctx.restore();
+			}
+
+			function _clear() {
+				ctx.clearRect(0, 0, 240, 202);
+			}
+
+			return {
+				setValue: function (v1, v2) {
+					if (timer) {
+						cancelAnimationFrame(timer);
+						timer = null;
+						curProgress = 0;
+					}
+					value1 = v1 || value1;
+					value2 = v2 || value2;
+					_run();
+				}
+			}
+		}
+
+		var dish = showDish(document.getElementById('cv'), 3, 4960);
+
+		setInterval(function() {
+			dish.setValue(1 + Math.random() * 2);
+		}, 3000)
+	</script>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>表盘</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		body, html {background: #06102a;}
+		canvas {
+			display: block;
+			margin: auto;
+			margin-top: 140px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="cv" width="220" height="177"></canvas>
+	<script type="text/javascript">
+		// cv为canvas DOM对象，percentIn为流入率，percentOut为流出率，percentIn/percentOut取值（0--100）
+		function showDish(cv, percentIn, percentOut, name, value) {			
+			var duration = 1000; // 动画用时1s
+			var ctx = cv.getContext('2d');
+			var deg = Math.PI / 180;
+			var speed = 1 / (duration / (1000 / 60));
+
+			var curProgress = 0; // 当前动画进度
+			var name = name;
+			var curValue = value || 0; // 流量值
+			var endIn = percentIn;
+			var endOut = percentOut;
+			var startIn = 0;
+			var startOut = 0;
+			var curIn = 0;
+			var curOut = 0;
+			var endPercent = 0;
+			var startPercent = 0;
+			var curPercent = 0;
+			var timer = null;
+			// 差值
+			var differIn = 0;
+			var differOut = 0;
+			var differPercent = 0;
+
+			var img = new Image();
+			img.src = './dish.png';
+			img.onload = function () {
+				init();
+			}
+
+			function init() {
+				clear();
+				drawLeftProgress();
+				drawRightProgress();
+				drawLines();
+				loadDish();	
+				drawNum();
+				drawProgressDish();
+				drawBlackCircle();
+				drawNeedle();
+				drawInnerCircle();
+				drawPencent();
+				drawName();
+				drawValue();
+				run();			
+			}
+
+			// 加载表盘
+			function loadDish(run) {
+				ctx.save();				
+				ctx.drawImage(img, 0, 0);
+				ctx.restore();
+			}
+
+			function run() {
+				// 0表示刚开始
+				if (curProgress === 0) {
+					if (endIn >= endOut) {
+						endPercent = endIn;
+					} else {
+						endPercent = endOut;
+					}
+					startIn = curIn;
+					startOut = curOut;
+					startPercent = curPercent;
+
+					differIn = endIn - curIn;
+					differOut = endOut - curOut;
+					differPercent = endPercent - curPercent;
+				}
+
+				if (curProgress < 1) {
+					timer = setTimeout(function() {
+						curProgress += speed;
+						curProgress > 1 && (curProgress = 1);
+						curIn = startIn + curProgress * differIn;
+						curOut = startOut + curProgress * differOut;
+						curPercent = startPercent + curProgress * differPercent;
+						init();
+					}, 1000 / 60);
+				} else {
+					curProgress = 0;
+					clearTimeout(timer);
+					timer = null;
+				}
+			}
+
+			function clear() {
+				ctx.clearRect(0, 0, 220, 177);
+			}
+
+			// 画左侧的进度条
+			function drawLeftProgress() {
+				ctx.save();
+				for (var i = 1; i <= 22; i++) {
+					ctx.fillStyle = i <= 22 - getCompleteCount(Math.floor(curIn)) ? '#13255f' : '#5397f7';
+				 	ctx.fillRect(0, 6 * i + 30.3, 50, 4);
+				}
+				ctx.globalCompositeOperation="destination-in";
+				ctx.beginPath();
+				ctx.lineWidth = 14;
+				ctx.arc(110, 100, 100, 0, 2*Math.PI);
+				ctx.stroke();
+
+				ctx.restore();
+			}
+
+			// 百分比，转换为两侧的完成个数
+			function getCompleteCount(percent) {
+				if (percent != 0 && percent < 4.6) {
+					return 1;
+				} else {
+					// 因为舍入误差，除多100再乘100
+					return Math.floor(percent / (100 * 100 / 22) * 100);
+				}
+			}
+
+			// 画右侧的进度条
+			function drawRightProgress() {
+				ctx.save();
+				for (var i = 1; i <= 22; i++) {
+					ctx.fillStyle = i <= 22 - getCompleteCount(Math.floor(curOut)) ? '#13255f' : '#6ad9f8';
+				 	ctx.fillRect(170, 6 * i + 30.3, 50, 4);
+				}
+				ctx.globalCompositeOperation="destination-in";
+				ctx.beginPath();
+				ctx.lineWidth = 14;
+				ctx.arc(110, 100, 100, 0, 2*Math.PI);
+				ctx.stroke();
+				ctx.restore();
+			}
+
+			function drawValue() {
+				ctx.save();
+				ctx.translate(110, 165);
+				ctx.textAlign = 'center';
+				ctx.font = '16px MicrosoftYaHei';
+				ctx.fillStyle = '#fff';
+				ctx.fillText(curValue, 0, 0);
+				ctx.restore();
+			}
+
+			function drawName() {
+				ctx.save();
+				ctx.translate(110, 122);
+				ctx.textAlign = 'center';
+				ctx.font = '14px MicrosoftYaHei';
+				ctx.fillStyle = '#8dbefa';
+				ctx.fillText(name, 0, 0);
+				ctx.restore();
+			}
+
+			function drawPencent() {
+				ctx.save();
+				ctx.translate(110, 100);
+				ctx.textAlign = 'center';
+				ctx.font = 'bold 22px MicrosoftYaHei';
+				if (endIn > endOut) {
+					ctx.fillStyle = '#5397f7';
+				} else if (endOut > endIn) {
+					ctx.fillStyle = '#6ad9f8';
+				} else {
+					ctx.fillStyle = '#fff';	
+				}
+				ctx.fillText(Math.floor(curPercent) + '%', 0, 0);
+				ctx.restore();
+			}
+
+			function drawInnerCircle() {
+				ctx.save();
+				ctx.fillStyle = '#0a1531';
+				ctx.shadowBlur = 14;
+				ctx.shadowColor = '#127be7';
+				ctx.beginPath();
+				ctx.arc(110, 100, 36, 0, 360 * deg);
+				ctx.closePath();
+				ctx.fill();
+				ctx.restore();
+			}
+
+			// 画指针
+			function drawNeedle() {
+				ctx.save();
+				ctx.translate(110, 100);
+				ctx.rotate((41 + (Math.floor(curPercent) / 100 * 278)) * deg);			
+				ctx.fillStyle = '#fff';
+				ctx.beginPath();
+				ctx.moveTo(-5, 0);
+				ctx.lineTo(5, 0);
+				ctx.lineTo(0, 90);
+				ctx.closePath();
+				ctx.fill();
+				ctx.restore();
+			}
+
+			function drawBlackCircle() {
+				ctx.save();
+				ctx.fillStyle = '#06102a';
+				ctx.beginPath();
+				ctx.arc(110, 100, 50, 0, 360 * deg);
+				ctx.closePath();
+				ctx.fill();
+				ctx.restore();
+			}
+
+			// 画盘标线上的数字
+			function drawNum() {
+				ctx.save();
+				ctx.font='12px Arial';
+				ctx.fillStyle = '#8dbcf5';
+				ctx.fillText('0', 59, 152);
+				ctx.fillText('10', 41, 127);
+				ctx.fillText('20', 39, 95);
+				ctx.fillText('30', 51, 68);
+				ctx.fillText('40', 71, 46);
+				ctx.fillText('50', 103, 38);
+				ctx.fillText('60', 135, 46);
+				ctx.fillText('70', 156, 68);
+				ctx.fillText('80', 168, 95);
+				ctx.fillText('90', 164, 127);
+				ctx.fillText('100', 154, 154);
+				ctx.restore();
+			}
+
+			// 画盘的标线
+			function drawLines() {
+				for (var i = 0; i <= 40; i++) {
+					ctx.save();
+					ctx.strokeStyle = '#3a5da2';
+					ctx.translate(110, 100);
+					ctx.rotate((42 + ( 6.9 * i )) * deg);
+					ctx.beginPath();
+					if (i % 4 === 0) {
+						ctx.moveTo(0, 73);
+					} else {
+						ctx.moveTo(0, 80);
+					}
+					ctx.lineTo(0, 90);
+					ctx.stroke();
+					ctx.restore();
+				}
+			}
+			
+			// 画当前进度对应的弧形
+			function drawProgressDish() {
+				ctx.save();
+				var grd=ctx.createLinearGradient(0, 0, 220, 0);
+				grd.addColorStop(0, 'rgba(4, 58, 114, 0.22)');
+				grd.addColorStop(0.5, 'rgba(0, 108, 230, 0.4)');
+				grd.addColorStop(1, 'rgba(40, 187, 255, 0.6)');
+				ctx.strokeStyle = grd;
+				ctx.lineWidth = 40;
+				ctx.beginPath();
+				ctx.arc(110, 100, 70, 131 * deg, (131 + (Math.floor(curPercent) / 100 * 278)) * deg);
+				ctx.stroke();
+				ctx.restore();
+			}
+
+			return {
+				setValue: function (percentIn, percentOut, value) {
+					if (timer) {
+						clearTimeout(timer);
+						timer = null;
+						curProgress = 0;
+					}
+					endIn = percentIn || endIn;
+					endOut = percentOut || endOut;
+					curValue = value || curValue;
+					run();
+				}
+			}
+		}
+
+		var dish = showDish(document.getElementById('cv'), 0, 0, '电信', '0Mb/s');
+
+		setInterval(function() {
+			dish.setValue(Math.ceil(Math.random() * 100), Math.ceil(Math.random() * 100), Math.ceil(Math.random() * 50) + 'Mb/s');
+		}, 3000);
+	</script>
+</body>
+</html>

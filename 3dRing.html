@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="jquery-1.11.3.min.js"></script>
+	<style type="text/css">
+		body {
+			background: black;
+		}
+		.percent-circle-up {
+			-webkit-transition: stroke-dasharray .25s;
+			transition: stroke-dasharray .25s;
+		}
+		.percent-circle-down {
+			opacity: 0.8;
+		}
+		.percent-circle {
+			transform: rotateX(-73deg);
+		}
+		.percent-circle-line {
+			transform: rotateX(-73deg) translateZ(8px);
+		}
+		.percent-circle-ctn {
+			width: 260px;
+			height: 170px;
+			overflow: hidden;
+			position: relative;
+			margin: 0 auto;
+			top: 300px;
+			transform-style: preserve-3d;
+			perspective: 1000px;
+		}
+	</style>
+</head>
+<body>
+	<div class="percent-circle-ctn">
+		<svg width="260" height="260" style="margin-top: 40px;">
+			<circle class="percent-circle percent-circle-line" r="120" cx="130" cy="130" stroke-width="3" stroke="#3f67a1" fill="none" stroke-dashoffset="60" stroke-dasharray="376.8 376.8"/>
+			<circle class="percent-circle percent-circle-down" r="100" cx="130" cy="130" stroke-width="20" stroke="#1c3a72" fill="none"/>
+			<circle class="percent-circle percent-circle-up" r="100" cx="130" cy="130" stroke-width="20" stroke="#5692de" fill="none" stroke-dashoffset="157" stroke-dasharray="0 628"/>
+			<circle class="percent-circle" r="100" cx="130" cy="130" stroke-width="20" stroke="#1c3a72" fill="none" stroke-dashoffset="157" stroke-dasharray="4 48"/>
+		</svg>
+		<p id="persent" style="font-size: 50px; text-align: center; color: #fff; position: absolute; top: -46px; left: 0; width: 100%; transform: rotateX(-30deg);">0%</p>
+		<p style="font-size: 22px; text-align: center; color: #aacffb; position: absolute; top: 40px; left: 0; width: 100%; transform: rotateX(40deg);">新增客户占比</p>
+	</div>
+	
+
+	<script type="text/javascript">
+		setInterval(function() {
+			var ran = (Math.random() * 100).toFixed(1);
+			$('#persent').text(ran + '%');
+			$('.percent-circle-up').attr('stroke-dasharray', ran * 628 / 100 + ' ' + (100 - ran) * 628 / 100)
+		}, 2000);
+	</script>
+</body>
+</html>
